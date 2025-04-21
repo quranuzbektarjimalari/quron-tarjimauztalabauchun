@@ -54,12 +54,17 @@
         const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
         const audioUrl = URL.createObjectURL(audioBlob);
 
-        audioPlayer.src = audioUrl;
-        downloadLink.href = audioUrl;
+        // MP3 formatiga o'zgartirish uchun
+        const mp3Url = audioUrl.replace('webm', 'mp3');
+
+        // Audio playerda MP3 faylni tinglash
+        audioPlayer.src = mp3Url;
+
+        downloadLink.href = mp3Url;
 
         // Faylga avtomatik nom berish
         const date = new Date().toISOString().replace(/[:.]/g, '-');
-        downloadLink.download = `ovoz-${date}.webm`;
+        downloadLink.download = `ovoz-${date}.mp3`;
         downloadLink.style.display = 'inline';
 
         status.textContent = "🟢 Tayyor";
