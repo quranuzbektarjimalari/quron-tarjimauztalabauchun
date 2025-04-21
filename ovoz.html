@@ -37,9 +37,16 @@
     const status = document.getElementById("status");
 
     startBtn.onclick = async () => {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      mediaRecorder = new MediaRecorder(stream);
-      audioChunks = [];
+    const stream = await navigator.mediaDevices.getUserMedia({
+  audio: {
+    sampleRate: 44100,   // CD sifatida
+    channelCount: 1,     // Mono (yakka kanal)
+    echoCancellation: true,
+    noiseSuppression: true,
+    autoGainControl: true
+  }
+});
+
 
       mediaRecorder.ondataavailable = (e) => {
         audioChunks.push(e.data);
