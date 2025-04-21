@@ -2,7 +2,7 @@
 <html lang="uz">
 <head>
   <meta charset="UTF-8">
-  <title>Ovoz yozish</title>
+  <title>Yuqori sifatli ovoz yozish</title>
   <style>
     #status {
       font-weight: bold;
@@ -17,7 +17,7 @@
   </style>
 </head>
 <body>
-  <h2>🎤 Ovoz yozish va tinglash</h2>
+  <h2>🎙️ Yuqori sifatli ovoz yozish va tinglash</h2>
   <button id="startBtn">Yozishni boshlash</button>
   <button id="stopBtn" disabled>To‘xtatish</button>
   <div id="status" class="ready">🟢 Tayyor</div>
@@ -37,7 +37,16 @@
     const status = document.getElementById("status");
 
     startBtn.onclick = async () => {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          sampleRate: 44100,         // CD sifat
+          channelCount: 1,           // Mono
+          echoCancellation: true,    // Aks-sado yo‘q
+          noiseSuppression: true,    // Shovqin yo‘q
+          autoGainControl: true      // Tovush balandligi avtomatik
+        }
+      });
+
       mediaRecorder = new MediaRecorder(stream);
       audioChunks = [];
 
@@ -54,17 +63,11 @@
         const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
         const audioUrl = URL.createObjectURL(audioBlob);
 
-        // MP3 formatiga o'zgartirish uchun
-        const mp3Url = audioUrl.replace('webm', 'mp3');
+        audioPlayer.src = audioUrl;
+        downloadLink.href = audioUrl;
 
-        // Audio playerda MP3 faylni tinglash
-        audioPlayer.src = mp3Url;
-
-        downloadLink.href = mp3Url;
-
-        // Faylga avtomatik nom berish
         const date = new Date().toISOString().replace(/[:.]/g, '-');
-        downloadLink.download = `ovoz-${date}.mp3`;
+        downloadLink.download = `ovoz-${date}.webm`;
         downloadLink.style.display = 'inline';
 
         status.textContent = "🟢 Tayyor";
