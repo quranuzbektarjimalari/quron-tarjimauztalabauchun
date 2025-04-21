@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <title>Ovoz yozish</title>
+  <style>
+    #status {
+      font-weight: bold;
+      margin-top: 10px;
+    }
+    .recording {
+      color: red;
+    }
+    .ready {
+      color: green;
+    }
+  </style>
+</head>
+<body>
+  <h2>🎤 Ovoz yozish va tinglash</h2>
+  <button id="startBtn">Yozishni boshlash</button>
+  <button id="stopBtn" disabled>To‘xtatish</button>
+  <div id="status" class="ready">🟢 Tayyor</div>
+  <br><br>
+  <audio id="audioPlayer" controls></audio>
+  <br><br>
+  <a id="downloadLink" style="display:none;" download>⬇️ Yuklab olish</a>
+
+  <script>
+    let mediaRecorder;
+    let audioChunks = [];
+
+    const startBtn = document.getElementById("startBtn");
+    const stopBtn = document.getElementById("stopBtn");
+    const audioPlayer = document.getElementById("audioPlayer");
+    const downloadLink = document.getElementById("downloadLink");
+    const status = document.getElementById("status");
+
+    startBtn.onclick = async () => {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      mediaRecorder = new MediaRecorder(stream);
+      audioChunks = [];
+
+      mediaRecorder.ondataavailable = (e) => {
+        audioChunks.push(e.data);
+      };
+
+      mediaRecorder.onstart = () => {
+        status.textContent = "🔴 Yozilmoqda...";
+        status.className = "recording";
+      };
+
+      mediaRecorder.onstop = () => {
+        const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+        const audioUrl = URL.createObjectURL(audioBlob);
+
+        audioPlayer.src = audioUrl;
+        downloadLink.href = audioUrl;
+
+        // Faylga avtomatik nom berish
+        const date = new Date().toISOString().replace(/[:.]/g, '-');
+        downloadLink.download = `ovoz-${date}.webm`;
+        downloadLink.style.display = 'inline';
+
+        status.textContent = "🟢 Tayyor";
+        status.className = "ready";
+      };
+
+      mediaRecorder.start();
+      startBtn.disabled = true;
+      stopBtn.disabled = false;
+    };
+
+    stopBtn.onclick = () => {
+      mediaRecorder.stop();
+      startBtn.disabled = false;
+      stopBtn.disabled = true;
+    };
+  </script>
+</body>
+</html>
